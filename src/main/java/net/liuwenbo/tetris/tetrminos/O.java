@@ -1,0 +1,20 @@
+package net.liuwenbo.tetris.tetrminos;
+
+import net.liuwenbo.tetris.Block;
+import net.liuwenbo.tetris.ImageUtils;
+import net.liuwenbo.tetris.Tetrmino;
+
+public class O extends Tetrmino {
+    public O() {
+        this.blocks[0] = new Block(0,4, ImageUtils.BLOCK_O);
+        this.blocks[1] = new Block(0,5, ImageUtils.BLOCK_O);
+        this.blocks[2] = new Block(1,4, ImageUtils.BLOCK_O);
+        this.blocks[3] = new Block(1,5, ImageUtils.BLOCK_O);
+        rotationPosition = new int[][][]{
+                {{+1, -1}, { 0, -1}, {+1,  0}}, // case 0
+                {{+1, -1}, { 0, -1}, {+1,  0}}, // case 1
+                {{+1, -1}, { 0, -1}, {+1,  0}}, // case 2
+                {{+1, -1}, { 0, -1}, {+1,  0}}, // case 3
+        };
+    }
+}
