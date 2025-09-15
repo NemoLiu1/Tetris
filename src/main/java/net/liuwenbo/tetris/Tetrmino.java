@@ -14,6 +14,8 @@ public abstract class Tetrmino {
 
     protected int rotationState = 20000;
 
+    public abstract void reset();
+
     public void rotate(int rotateFactor) {
         rotationState += rotateFactor;
         int i = rotationState % 4;
@@ -24,14 +26,6 @@ public abstract class Tetrmino {
         blocks[2].setColumn(blocks[1].getColumn() + position[1][1]);
         blocks[3].setRow   (blocks[1].getRow()    + position[2][0]);
         blocks[3].setColumn(blocks[1].getColumn() + position[2][1]);
-
-        // rotationPosition templet
-//        rotationPosition = new int[][][]{
-//                {{, }, {, }, {, }}, // case 0
-//                {{, }, {, }, {, }}, // case 1
-//                {{, }, {, }, {, }}, // case 2
-//                {{, }, {, }, {, }}, // case 3
-//        };
     }
 
     public static Tetrmino generateNewTetrmino() {
@@ -58,24 +52,6 @@ public abstract class Tetrmino {
     }
 
     public boolean canRotateRight(Matrix matrix) {
-//        int index = rotationState % 4;
-//        int[][] position = rotationPosition[index];
-//
-//        for (int i = 0; i < 3; i++) {
-//            int row = 0;
-//            int column = 0;
-//            for (int j = 0; j < 2; j++) {
-//                if (j % 2 == 0) {
-//                    row = blocks[1].getRow() + position[i][j];
-//                } else {
-//                    column = blocks[1].getColumn() + position[i][j];
-//                }
-//            }
-//            if (matrix.get(row, column) == null) {
-//                return false;
-//            }
-//        }
-//        return true;
         rotate(Tetrmino.ROTATE_RIGHT);
         for (int i = 0; i < blocks.length; i++) {
             if (matrix.get(blocks[i].getRow(), blocks[i].getColumn()) != null ||

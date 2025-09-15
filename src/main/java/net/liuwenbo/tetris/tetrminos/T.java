@@ -17,5 +17,14 @@ public class T extends Tetrmino {
                 {{-1, 0}, {0, -1}, {+1, 0}}, // case 3
         };
     }
+
+    @Override
+    public void reset() {
+        this.blocks[0] = new Block(0,4, ImageUtils.BLOCK_T);
+        this.blocks[2] = new Block(1,3, ImageUtils.BLOCK_T);
+        this.blocks[1] = new Block(1,4, ImageUtils.BLOCK_T);
+        this.blocks[3] = new Block(1,5, ImageUtils.BLOCK_T);
+        rotationState = 20000;
+    }
 }
 

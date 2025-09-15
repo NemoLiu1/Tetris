@@ -1,5 +1,8 @@
 package net.liuwenbo.tetris;
 
+import net.liuwenbo.tetris.tetrminos.I;
+import net.liuwenbo.tetris.tetrminos.O;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -8,39 +11,26 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class Tetris extends JPanel {
-//    public static final int[] POINTS = {
-//            1, // soft drop
-//            2, // hard drop
-//            100, // single line clear
-//            300, // double line clear
-//            500, // triple line clear
-//            800, // Tetris or 4 line clear
-//            400, // T-spin
-//            800, // T-spin Single
-//            1200, // T-spin Double
-//            1600, // T-spin Triple
-//            // currently missing "back-to-back (0.5 * Tetris or T-spin)"
-//    };
+
     private Tetrmino fallingTetrimino = Tetrmino.generateNewTetrmino();
     private Tetrmino waitingTetrimino_1 = Tetrmino.generateNewTetrmino();
     private Tetrmino waitingTetrimino_2 = Tetrmino.generateNewTetrmino();
     private Tetrmino waitingTetrimino_3 = Tetrmino.generateNewTetrmino();
     private Tetrmino holdingTetrimino = null;
-    private boolean haveHeldThisTurn = false;
     private Matrix matrix = new Matrix();
+    private Scores currentScores = new Scores();
     private BufferedImage background = ImageUtils.BACKGROUND;
+    private Font scoreFont = new Font("score font", Font.BOLD, 17);
+    private boolean haveHeldThisTurn = false;
+    private int linesCleared = 0;
     private int dropIndex = 0;
     private int frameRate = 25;
-    private int score = 0;
-    private int linesCleared = 0;
-    private int scoreIndex = 1;
     private Timer timer = new Timer();
     private TimerTask timerTask = new TimerTask() {
         @Override
         public void run() {
             dropIndex++;
             if (dropIndex % frameRate == 0) {
-                score += scoreIndex;
                 softDrop();
                 repaint();
             }
@@ -62,19 +52,42 @@ public class Tetris extends JPanel {
     public void paint(Graphics g) {
         super.paint(g);
         g.drawImage(background, 0, 0, this);
+        g.setFont(scoreFont);
+        g.setColor(Color.WHITE);
+        g.drawString(Integer.toString(currentScores.getCurrentScore()), 110, 398);
+        g.drawString(Integer.toString(currentScores.getTotalClearedLines()), 110, 519);
         matrix.paint(g);
         fallingTetrimino.paint(g, 40, 270);
         waitingTetrimino_1.paint(g, 100, 525);
         waitingTetrimino_2.paint(g, 178, 525);
         waitingTetrimino_3.paint(g, 244, 525);
+        if (holdingTetrimino != null) {
+            if (holdingTetrimino instanceof I) {
+                holdingTetrimino.paint(g, 97, 12);
+            } else if (holdingTetrimino instanceof O) {
+                holdingTetrimino.paint(g, 110, 12);
+            } else {
+                holdingTetrimino.paint(g, 110, 25);
+            }
+        }
+    }
+
+    boolean test = fallingTetrimino.blocks[1].getRow() == waitingTetrimino_1.blocks[1].getRow();
+
+    public void isGameOver() {
+        for (int i = 0; i < 4; i++) {
+//            if (fallingTetrimino.blocks[i].getRow() == 0 &&
+//                    ((fallingTetrimino.blocks[i].getRow() == waitingTetrimino_1.blocks[i].getRow()) &&
+//                            (fallingTetrimino.blocks[i].getColumn() == waitingTetrimino_1.blocks[i].getColumn()))) {
+//                System.out.println("game over");
+//            }
+            if (matrix.get(fallingTetrimino.blocks[i].getRow(), fallingTetrimino.blocks[i].getColumn()) != null) {
+                System.out.println("game over");
+            }
+        }
     }
 
     public void dropDown() {
-//        while (matrix.isRowFull() != -1) {
-//            int fullRowIndex = matrix.isRowFull();
-//            matrix.clearARow(fullRowIndex);
-//            matrix.moveAllBlocksDown(fullRowIndex);
-//        }
         boolean foundFullRow;
         do {
             foundFullRow = false;
@@ -90,27 +103,22 @@ public class Tetris extends JPanel {
                 }
             }
         } while (foundFullRow);
+
+        currentScores.addScoreForLineClear(linesCleared);
+        linesCleared = 0;
     }
 
-//    public void calculateScore() {
-//        switch (linesCleared) {
-//            case 1:
-//                score += POINTS[];
-//        }
-//        score += 100;
-//    }
-
     private void softDrop() {
+        isGameOver();
         if (fallingTetrimino.isLanded(matrix)) {
             fallingTetrimino.enterMatrix(matrix);
             dropDown();
             nextTetrimino();
-//            calculateScore();
-            linesCleared = 0;
+
             haveHeldThisTurn = false;
         } else {
             fallingTetrimino.moveDown();
-//            score += POINTS[1];
+            currentScores.addScoreForSoftDrop(1);
         }
         repaint();
     }
@@ -142,14 +150,15 @@ public class Tetris extends JPanel {
     private void holdTetrmino() {
         if (holdingTetrimino == null) {
             holdingTetrimino = fallingTetrimino;
+            holdingTetrimino.reset();
             nextTetrimino();
             System.out.println(1);
         } else if (! haveHeldThisTurn) {
             Tetrmino temperateTetrimino = fallingTetrimino;
             fallingTetrimino = holdingTetrimino;
             holdingTetrimino = temperateTetrimino;
+            holdingTetrimino.reset();
             repaint();
-
             haveHeldThisTurn = true;
         }
     }
